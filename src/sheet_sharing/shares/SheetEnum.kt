@@ -12,3 +12,16 @@ enum class SheetEnum {
     @JsonProperty("Dashboard")
     DASHBOARD
 }
+
+fun getEquivalentSheetEnum(sheet: String): SheetEnum {
+    val formatedSheet = sheet
+        .replace("""!.*$""".toRegex(), "") //remove ending
+        .replace("""^[\"']+|[\"']+$""".toRegex(), "") //remove quotes
+        .replace(" ", "")
+        .toUpperCase()
+
+    return when (SheetEnum.values().map { it.name }.contains(formatedSheet)) {
+        true -> SheetEnum.valueOf(formatedSheet)
+        false -> throw IllegalArgumentException("$formatedSheet Not a valid sheet")
+    }
+}
