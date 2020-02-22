@@ -2,8 +2,8 @@ package config
 
 import com.uchuhimo.konf.Config
 
-import sheet_sharing.sharing.SheetShareController
-import sheet_sharing.sharing.SheetShareService
+import sheet_sharing.shares.SheetShareController
+import sheet_sharing.shares.SheetShareService
 import org.jetbrains.exposed.sql.Database
 import org.koin.Logger.slf4jLogger
 import org.koin.core.context.GlobalContext

@@ -1,4 +1,4 @@
-package sheet_sharing.sharing
+package sheet_sharing.shares
 
 fun validateSelection(selection: String): Boolean {
     return """

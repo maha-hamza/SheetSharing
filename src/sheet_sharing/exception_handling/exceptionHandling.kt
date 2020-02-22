@@ -4,8 +4,8 @@ import io.ktor.application.call
 import io.ktor.features.StatusPages
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
-import sheet_sharing.sharing.BodyDeserializationException
-import sheet_sharing.sharing.InvalidSelectionFormatException
+import sheet_sharing.shares.BodyDeserializationException
+import sheet_sharing.shares.InvalidSelectionFormatException
 
 val exceptionHandling: StatusPages.Configuration.() -> Unit = {
 
