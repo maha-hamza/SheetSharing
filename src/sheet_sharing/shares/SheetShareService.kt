@@ -40,24 +40,14 @@ class SheetShareService : KoinComponent {
         }
     }
 
-    private fun validateSharingsInput(shares: NewShares) {
-        val emailsValidation = shares.recipients.map { validateEmail(it) }.filter { !it }
-        if (emailsValidation.isNotEmpty())
-            throw InvalidEmailFormatException("One or More email address(es) in invalid format")
-
-        val selectionsValidation = shares.selections.map { validateSelection(it) }.filter { !it }
-        if (selectionsValidation.isNotEmpty())
-            throw InvalidSelectionFormatException("One or More Selection(s) in invalid format")
-
-        shares.selections.map { getEquivalentSheetEnum(it) }
-    }
-
     fun getAllShares(): List<Share> {
         return transaction {
             Shares
                 .selectAll()
                 .map(::toShare)
-                .map { it.copy(recipients = recipientShareService.getRecipientsEmailsByShare(it.id)) }
+                .map {
+                    it.copy(recipients = recipientShareService.getRecipientsEmailsByShare(it.id))
+                }
         }
     }
 
@@ -85,6 +75,18 @@ class SheetShareService : KoinComponent {
                 false -> throw RecipientNotFoundException("$email, has no shares yet")
             }
         }
+    }
+
+    private fun validateSharingsInput(shares: NewShares) {
+        val emailsValidation = shares.recipients.map { validateEmail(it) }.filter { !it }
+        if (emailsValidation.isNotEmpty())
+            throw InvalidEmailFormatException("One or More email address(es) in invalid format")
+
+        val selectionsValidation = shares.selections.map { validateSelection(it) }.filter { !it }
+        if (selectionsValidation.isNotEmpty())
+            throw InvalidSelectionFormatException("One or More Selection(s) in invalid format")
+
+        shares.selections.map { getEquivalentSheetEnum(it) }
     }
 }
 

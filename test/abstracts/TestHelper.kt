@@ -12,14 +12,15 @@ import java.util.*
 
 fun insertShare(
     sheet: SheetEnum = SheetEnum.HRRREPORT,
-    selection: String = "HRRREPORT!A1"
+    selection: String = "HRRREPORT!A1",
+    createdAt: DateTime = DateTime(Instant.now().toEpochMilli())
 ): String {
     return transaction {
         Shares.insert {
             it[id] = UUID.randomUUID().toString()
             it[Shares.sheet] = sheet
             it[Shares.selection] = selection
-            it[createdAt] = DateTime(Instant.now().toEpochMilli())
+            it[Shares.createdAt] = createdAt
         } get Shares.id
     }
 }
