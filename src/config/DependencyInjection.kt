@@ -10,6 +10,7 @@ import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import sheet_sharing.recipient_share.RecipientShareService
 import javax.sql.DataSource
 
 fun initKoin(config: Config) {
@@ -29,6 +30,8 @@ fun modules(config: Config, overrides: List<Module> = emptyList()): List<Module>
 
             single { SheetShareController() }
             single { SheetShareService() }
+
+            single { RecipientShareService() }
 
         }
     ) + overrides

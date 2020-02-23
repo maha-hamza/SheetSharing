@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS recipient_share
+CREATE TABLE IF NOT EXISTS recipientshares
 (
    id                 VARCHAR(50)    PRIMARY KEY    NOT NULL,
    share_id           VARCHAR(50)                   NOT NULL,
