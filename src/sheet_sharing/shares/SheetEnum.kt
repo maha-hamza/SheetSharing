@@ -22,6 +22,6 @@ fun getEquivalentSheetEnum(sheet: String): SheetEnum {
 
     return when (SheetEnum.values().map { it.name }.contains(formatedSheet)) {
         true -> SheetEnum.valueOf(formatedSheet)
-        false -> throw IllegalArgumentException("$formatedSheet Not a valid sheet")
+        false -> throw SelectionDoesntMatchActualSheetException("$formatedSheet Not a valid sheet")
     }
 }

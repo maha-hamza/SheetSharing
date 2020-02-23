@@ -5,6 +5,7 @@ import abstracts.insertRecipientsSharing
 import abstracts.insertShare
 import config.lazyInject
 import org.assertj.core.api.Assertions.assertThat
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.joda.time.DateTime
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -141,6 +142,79 @@ class SheetShareServiceTest : AbstractDBTest(), KoinComponent {
         fun `Should fail retrieving recipients' shares (recipient not found)`() {
             val result = assertThrows<RecipientNotFoundException> { service.getRecipientShares("any@email.com") }
             assertThat(result.message).isEqualTo("any@email.com, has no shares yet")
+        }
+    }
+
+    @Nested
+    inner class SharesCreation {
+
+        @Test
+        fun `Share creation fails (invalid email format)`() {
+            val shares = NewShares(
+                recipients = listOf("test@me", "test@test.com"),
+                selections = listOf("sel1")
+            )
+            val result = assertThrows<InvalidEmailFormatException> { service.createShares(shares) }
+            assertThat(result.message).isEqualTo("One or More email address(es) in invalid format")
+        }
+
+        @Test
+        fun `Share creation fails (invalid selection format)`() {
+            val shares = NewShares(
+                recipients = listOf("test1@me.com", "test2@test.com"),
+                selections = listOf("'sel1")
+            )
+            val result = assertThrows<InvalidSelectionFormatException> { service.createShares(shares) }
+            assertThat(result.message).isEqualTo("One or More Selection(s) in invalid format")
+        }
+
+        @Test
+        fun `Share creation fails (selection doesn't match actual sheet)`() {
+            val shares = NewShares(
+                recipients = listOf("test1@me.com", "test2@test.com"),
+                selections = listOf("sel1")
+            )
+            val result = assertThrows<SelectionDoesntMatchActualSheetException> { service.createShares(shares) }
+            assertThat(result.message).isEqualTo("SEL1 Not a valid sheet")
+        }
+
+        @Test
+        fun `Should Create Shares Successfully`() {
+            val shares = NewShares(
+                recipients = listOf("test1@me.com", "test2@test.com", "test3@test.com"),
+                selections = listOf("HRR REPORT!B4", "ASSUMPTIONS")
+            )
+            val result = service.createShares(shares).sortedBy { it.sheet }
+
+            assertThat(result)
+                .usingElementComparatorIgnoringFields("createdAt", "id")
+                .isEqualTo(
+                    listOf(
+                        Share(
+                            id = "",
+                            createdAt = Instant.now(),
+                            sheet = SheetEnum.HRRREPORT,
+                            recipients = listOf("test1@me.com", "test2@test.com", "test3@test.com"),
+                            selection = "HRR REPORT!B4"
+                        ),
+                        Share(
+                            id = "",
+                            createdAt = Instant.now(),
+                            sheet = SheetEnum.ASSUMPTIONS,
+                            recipients = listOf("test1@me.com", "test2@test.com", "test3@test.com"),
+                            selection = "ASSUMPTIONS"
+                        )
+                    )
+                )
+        }
+
+        @Test
+        fun `Creating shares fails(Unique Index Exception)`() {
+            val shares = NewShares(
+                recipients = listOf("test@test.com", "test@test.com"),
+                selections = listOf("HRR REPORT!B4")
+            )
+            assertThrows<ExposedSQLException> { service.createShares(shares) }
         }
     }
 

@@ -1,9 +1,6 @@
 package sheet_sharing.shares
 
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.joda.time.DateTime
 import org.koin.core.KoinComponent
@@ -27,13 +24,17 @@ class SheetShareService : KoinComponent {
                 this[Shares.sheet] = getEquivalentSheetEnum(selection)
             }.map { toShare(it) }
 
-            RecipientShares.batchInsert(newShares.recipients) { recipient ->
-                shares.map { it.id }.forEach { shareId ->
-                    this[RecipientShares.id] = UUID.randomUUID().toString()
-                    this[RecipientShares.recipientEmail] = recipient
-                    this[RecipientShares.shareId] = shareId
+//TODO revisit
+            newShares.recipients.forEach { rec ->
+                shares.map { it.id }.forEach { share ->
+                    RecipientShares.insert {
+                        it[id] = UUID.randomUUID().toString()
+                        it[recipientEmail] = rec
+                        it[shareId] = share
+                    }
                 }
             }
+
             shares.map {
                 it.copy(recipients = recipientShareService.getRecipientsEmailsByShare(it.id))
             }

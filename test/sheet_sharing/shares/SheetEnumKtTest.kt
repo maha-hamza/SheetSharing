@@ -19,6 +19,6 @@ class SheetEnumKtTest {
     @Test
     fun `Should Detect Selection that is not existed in SheetEnum `() {
         val selection = "'HRR'!B4"
-        assertThrows<IllegalArgumentException> { getEquivalentSheetEnum(selection) }
+        assertThrows<SelectionDoesntMatchActualSheetException> { getEquivalentSheetEnum(selection) }
     }
 }
