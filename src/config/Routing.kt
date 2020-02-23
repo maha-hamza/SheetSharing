@@ -20,6 +20,6 @@ fun Routing.route() {
 
     get   ("/api/shares",                         sheetShareController::getAllShares)
     get   ("/api/shares/recipient/{recipient}", sheetShareController::getRecipientShares)
-    get   ("/api/shares/{id}",                    sheetShareController::getAllShares)
+    get   ("/api/shares/{id}",                    sheetShareController::getShareById)
     post  ("/api/shares",                         sheetShareController::createShares)
 }
