@@ -11,7 +11,8 @@ class RecipientShareService : KoinComponent {
 
     fun getRecipientsEmailsByShare(shareId: String): List<String> {
         return transaction {
-            RecipientShares.selectAll()
+            RecipientShares
+                .selectAll()
                 .andWhere { RecipientShares.shareId eq shareId }
                 .map { it[RecipientShares.recipientEmail] }
         }
