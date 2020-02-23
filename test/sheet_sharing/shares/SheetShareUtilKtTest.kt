@@ -23,4 +23,18 @@ class SheetShareUtilKtTest {
         assertFalse(validateSelection("'Sheet Name With Spaces Single Cell!B4"))
     }
 
+    @Test
+    fun `Should Validate given email address Successfully`() {
+        assertTrue(validateEmail("me@me.com"))
+        assertTrue(validateEmail("_me@me.com"))
+        assertTrue(validateEmail("1_me@me.com"))
+    }
+
+    @Test
+    fun `Should Detect Wrong email address`() {
+        assertFalse(validateEmail("@me.com"))
+        assertFalse(validateEmail("..me@me.com"))
+        assertFalse(validateEmail("1_me@me"))
+    }
+
 }
