@@ -14,6 +14,10 @@ class SheetShareService : KoinComponent {
 
     private val recipientShareService by inject<RecipientShareService>()
 
+    /**
+     * Concurrency Handling should be included if needed here
+     * I Would Use Locking due to different DB operations (Will not relay on DB Isolation Levels in that case)
+     */
     fun createShares(newShares: NewShares): List<Share> {
         validateSharingsInput(newShares)
         return transaction {
@@ -34,10 +38,17 @@ class SheetShareService : KoinComponent {
                     }
                 }
             }
-
+            /**
+             * Notify Recipients that they have access to new parts
+             */
             shares.map {
                 it.copy(recipients = recipientShareService.getRecipientsEmailsByShare(it.id))
             }
+            /**
+             * Send Notification to Users that the action is done (return with the result)
+             * Low Priority because response is getting back to the client , but would be good idea in case of hierarchy
+             * i.e. Admin , Editor ... etc other than action initiator
+             */
         }
     }
 
