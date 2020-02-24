@@ -10,14 +10,14 @@ import sheet_sharing.recipient_share.RecipientShares
 import java.time.Instant
 import java.util.*
 
+/**
+ * Remember to add Concurrency Handling in case  update operation is implemented in sometime ,
+ * if it's just critical code , rely on DB locking , otherwise use different locks to mark only parts u need to lock
+ */
 class SheetShareService : KoinComponent {
 
     private val recipientShareService by inject<RecipientShareService>()
 
-    /**
-     * Concurrency Handling should be included if needed here
-     * I Would Use Locking due to different DB operations (Will not relay on DB Isolation Levels in that case)
-     */
     fun createShares(newShares: NewShares): List<Share> {
         validateSharingsInput(newShares)
         return transaction {
@@ -28,7 +28,6 @@ class SheetShareService : KoinComponent {
                 this[Shares.sheet] = getEquivalentSheetEnum(selection)
             }.map { toShare(it) }
 
-//TODO revisit
             newShares.recipients.forEach { rec ->
                 shares.map { it.id }.forEach { share ->
                     RecipientShares.insert {
@@ -46,7 +45,7 @@ class SheetShareService : KoinComponent {
             }
             /**
              * Send Notification to Users that the action is done (return with the result)
-             * Low Priority because response is getting back to the client , but would be good idea in case of hierarchy
+             * Low Priority because response is getting back to the client any way, but would be good idea in case of hierarchy
              * i.e. Admin , Editor ... etc other than action initiator
              */
         }
@@ -89,16 +88,21 @@ class SheetShareService : KoinComponent {
         }
     }
 
+    /**
+     * I depend on All or none , that's why if one validation failed , all the process should be rollback
+     */
     private fun validateSharingsInput(shares: NewShares) {
         val emailsValidation = shares.recipients.map { validateEmail(it) }.filter { !it }
         if (emailsValidation.isNotEmpty())
-            throw InvalidEmailFormatException("One or More email address(es) in invalid format")
+            throw InvalidEmailFormatException("(${emailsValidation.size}) email address(es) in invalid format")
 
         val selectionsValidation = shares.selections.map { validateSelection(it) }.filter { !it }
         if (selectionsValidation.isNotEmpty())
-            throw InvalidSelectionFormatException("One or More Selection(s) in invalid format")
+            throw InvalidSelectionFormatException("(${selectionsValidation.size}) Selection(s) in invalid format")
 
-        shares.selections.map { getEquivalentSheetEnum(it) }
+        val equiSheetValidation = shares.selections.map { validateEquivalentSheetEnum(it) }.filter { !it }
+        if (equiSheetValidation.isNotEmpty())
+            throw SelectionDoesntMatchActualSheetException("(${equiSheetValidation.size}) Selection(s) didn't represent a valid sheet")
     }
 }
 

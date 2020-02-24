@@ -155,7 +155,7 @@ class SheetShareServiceTest : AbstractDBTest(), KoinComponent {
                 selections = listOf("sel1")
             )
             val result = assertThrows<InvalidEmailFormatException> { service.createShares(shares) }
-            assertThat(result.message).isEqualTo("One or More email address(es) in invalid format")
+            assertThat(result.message).isEqualTo("(1) email address(es) in invalid format")
         }
 
         @Test
@@ -165,17 +165,17 @@ class SheetShareServiceTest : AbstractDBTest(), KoinComponent {
                 selections = listOf("'sel1")
             )
             val result = assertThrows<InvalidSelectionFormatException> { service.createShares(shares) }
-            assertThat(result.message).isEqualTo("One or More Selection(s) in invalid format")
+            assertThat(result.message).isEqualTo("(1) Selection(s) in invalid format")
         }
 
         @Test
         fun `Share creation fails (selection doesn't match actual sheet)`() {
             val shares = NewShares(
                 recipients = listOf("test1@me.com", "test2@test.com"),
-                selections = listOf("sel1")
+                selections = listOf("sel1", "sel2")
             )
             val result = assertThrows<SelectionDoesntMatchActualSheetException> { service.createShares(shares) }
-            assertThat(result.message).isEqualTo("SEL1 Not a valid sheet")
+            assertThat(result.message).isEqualTo("(2) Selection(s) didn't represent a valid sheet")
         }
 
         @Test

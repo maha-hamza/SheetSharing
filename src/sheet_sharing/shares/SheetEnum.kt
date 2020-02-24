@@ -14,14 +14,24 @@ enum class SheetEnum {
 }
 
 fun getEquivalentSheetEnum(sheet: String): SheetEnum {
-    val formatedSheet = sheet
+    val formattedSheet = sheet
         .replace("""!.*$""".toRegex(), "") //remove ending
         .replace("""^[\"']+|[\"']+$""".toRegex(), "") //remove quotes
         .replace(" ", "")
         .toUpperCase()
 
-    return when (SheetEnum.values().map { it.name }.contains(formatedSheet)) {
-        true -> SheetEnum.valueOf(formatedSheet)
-        false -> throw SelectionDoesntMatchActualSheetException("$formatedSheet Not a valid sheet")
+    return when (SheetEnum.values().map { it.name }.contains(formattedSheet)) {
+        true -> SheetEnum.valueOf(formattedSheet)
+        false -> throw SelectionDoesntMatchActualSheetException("$formattedSheet Not a valid sheet")
     }
+}
+
+fun validateEquivalentSheetEnum(sheet: String): Boolean {
+    val formattedSheet = sheet
+        .replace("""!.*$""".toRegex(), "") //remove ending
+        .replace("""^[\"']+|[\"']+$""".toRegex(), "") //remove quotes
+        .replace(" ", "")
+        .toUpperCase()
+
+    return SheetEnum.values().map { it.name }.contains(formattedSheet)
 }
